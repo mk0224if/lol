@@ -1,207 +1,47 @@
-let generatedPlate = "";
-let hasSolution = false;
-let timer;
-let timeLeft = 30;
-let solutions = [];
-let score = 0; // 連続正解数
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>10を作るゲーム</title>
+  <link rel="stylesheet" href="stylesheet.css" />
+</head>
+<body>
+  <h1>10を作るゲーム</h1>
 
-function generatePlate() {
-  clearInterval(timer);
-  const number = Math.floor(Math.random() * 10000);
-  generatedPlate = number.toString().padStart(4, "0");
-  document.getElementById("plateDisplay").textContent = generatedPlate;
-  document.getElementById("result").textContent = "";
-  document.getElementById("userInput").value = "";
-  timeLeft = 30;
-  solutions = findSolutions(generatedPlate);
-  hasSolution = solutions.length > 0;
-  updateTimer();
-  updateScore();
-  startTimer();
-}
+  <div id="plateArea">
+    <p>数字プレート: <span id="plateDisplay"></span></p>
+  </div>
 
-function updateTimer() {
-  document.getElementById("timer").textContent = `残り時間: ${timeLeft}秒`;
-}
+  <div id="inputArea">
+    <input type="text" id="userInput" autocomplete="off" placeholder="式を入力してください" />
+    <button id="submitBtn">回答</button>
+  </div>
 
-function updateScore() {
-  document.getElementById("score").textContent = `連続正解数: ${score}`;
-}
+  <div id="inputButtons">
+    <button type="button" class="inputBtn">0</button>
+    <button type="button" class="inputBtn">1</button>
+    <button type="button" class="inputBtn">2</button>
+    <button type="button" class="inputBtn">3</button>
+    <button type="button" class="inputBtn">4</button>
+    <button type="button" class="inputBtn">5</button>
+    <button type="button" class="inputBtn">6</button>
+    <button type="button" class="inputBtn">7</button>
+    <button type="button" class="inputBtn">8</button>
+    <button type="button" class="inputBtn">9</button>
+    <button type="button" class="inputBtn">+</button>
+    <button type="button" class="inputBtn">−</button>
+    <button type="button" class="inputBtn">×</button>
+    <button type="button" class="inputBtn">÷</button>
+    <button type="button" id="parenBtn" class="inputBtn">(</button>
+    <button type="button" id="backspaceBtn">←</button>
+    <button type="button" id="clearBtn">クリア</button>
+  </div>
 
-function startTimer() {
-  timer = setInterval(() => {
-    timeLeft--;
-    updateTimer();
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      score = 0; // 時間切れでスコアリセット
-      updateScore();
-      showAnswerExample();
-    }
-  }, 1000);
-}
+  <p id="timer">残り時間: 30秒</p>
+  <p id="score">連続正解数: 0</p>
+  <p id="result"></p>
 
-function getDigits(str) {
-  return str.split("").sort();
-}
-
-function getUsedDigits(expr) {
-  return expr.replace(/[^0-9]/g, "").split("").sort();
-}
-
-function arraysEqual(a, b) {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
-}
-
-function checkInput() {
-  if (timeLeft <= 0) return;
-
-  const userInput = document.getElementById("userInput").value.trim();
-
-  if (userInput === "答えがない") {
-    if (!hasSolution) {
-      clearInterval(timer);
-      document.getElementById("result").textContent = "正解！この数字では10は作れません。";
-      document.getElementById("result").style.color = "green";
-      score++;
-      updateScore();
-      setTimeout(generateNextProblem, 2000);
-    } else {
-      document.getElementById("result").textContent = "実は解があります！もう一度考えてみてください。";
-      document.getElementById("result").style.color = "red";
-      // スコアはリセットしない
-    }
-    return;
-  }
-
-  try {
-    const sanitized = userInput.replace(/÷/g, "/").replace(/×/g, "*");
-    const userDigits = getUsedDigits(userInput);
-    const targetDigits = getDigits(generatedPlate);
-
-    if (!arraysEqual(userDigits, targetDigits)) {
-      document.getElementById("result").textContent = "すべての数字を一度ずつ使ってください。";
-      document.getElementById("result").style.color = "orange";
-      // スコアはリセットしない
-      return;
-    }
-
-    const result = Function(`"use strict"; return (${sanitized})`)();
-    if (Math.abs(result - 10) < 0.0001) {
-      clearInterval(timer);
-      document.getElementById("result").textContent = "正解！10になりました！";
-      document.getElementById("result").style.color = "green";
-      timeLeft += 30; // 正解で30秒追加
-      score++;
-      updateScore();
-      setTimeout(generateNextProblem, 2000);
-    } else {
-      document.getElementById("result").textContent = `残念、結果は ${result} でした。`;
-      document.getElementById("result").style.color = "red";
-      // スコアはリセットしない
-    }
-  } catch (e) {
-    document.getElementById("result").textContent = "式が無効です。カッコや演算子を確認してください。";
-    document.getElementById("result").style.color = "red";
-    // スコアはリセットしない
-  }
-}
-
-function generateNextProblem() {
-  clearInterval(timer);
-  timeLeft = 30;
-  generatePlate();
-}
-
-function showAnswerExample() {
-  if (hasSolution) {
-    document.getElementById("result").textContent = `時間切れ！解答例: ${solutions[0].replace(/\*/g, "×").replace(/\//g, "÷")}`;
-    document.getElementById("result").style.color = "red";
-  } else {
-    document.getElementById("result").textContent = "時間切れ！この数字では10を作れません。";
-    document.getElementById("result").style.color = "green";
-  }
-}
-
-// 解答例を探すロジック
-function findSolutions(digits) {
-  const nums = digits.split("");
-  const ops = ["+", "-", "*", "/"];
-
-  function permute(arr) {
-    if (arr.length <= 1) return [arr];
-    const result = [];
-    for (let i = 0; i < arr.length; i++) {
-      const rest = [...arr.slice(0, i), ...arr.slice(i + 1)];
-      for (const p of permute(rest)) {
-        result.push([arr[i], ...p]);
-      }
-    }
-    return result;
-  }
-
-  function combineOps(n) {
-    if (n === 1) return [[]];
-    const result = [];
-    const rest = combineOps(n - 1);
-    for (const r of rest) {
-      for (const o of ops) {
-        result.push([o, ...r]);
-      }
-    }
-    return result;
-  }
-
-  const numPerms = permute(nums);
-  const opCombos = combineOps(3);
-  const found = [];
-
-  for (const np of numPerms) {
-    for (const opset of opCombos) {
-      const a = np[0],
-        b = np[1],
-        c = np[2],
-        d = np[3];
-      const o1 = opset[0],
-        o2 = opset[1],
-        o3 = opset[2];
-      const expressions = [
-        `${a}${o1}${b}${o2}${c}${o3}${d}`,
-        `(${a}${o1}${b})${o2}${c}${o3}${d}`,
-        `${a}${o1}(${b}${o2}${c})${o3}${d}`,
-        `${a}${o1}${b}${o2}(${c}${o3}${d})`,
-        `(${a}${o1}${b}${o2}${c})${o3}${d}`,
-        `${a}${o1}(${b}${o2}${c}${o3}${d})`,
-        `(${a}${o1}${b})${o2}(${c}${o3}${d})`,
-      ];
-      for (const expr of expressions) {
-        try {
-          const val = Function(`"use strict"; return (${expr})`)();
-          if (Math.abs(val - 10) < 0.0001) {
-            found.push(expr);
-            if (found.length >= 3) return found;
-          }
-        } catch (e) {
-          continue;
-        }
-      }
-    }
-  }
-  return found;
-}
-
-document.getElementById("submitBtn").addEventListener("click", checkInput);
-document.getElementById("retryBtn").addEventListener("click", generatePlate);
-
-// エンターキーで送信
-document.getElementById("userInput").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    checkInput();
-  }
-});
-
-generatePlate();
+  <script src="script.js"></script>
+</body>
+</html>
