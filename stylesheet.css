@@ -1,0 +1,95 @@
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 480px;
+  margin: 2em auto;
+  padding: 0 1em;
+  text-align: center;
+  background-color: #f9f9f9;
+}
+
+h1 {
+  margin-bottom: 1em;
+  color: #222;
+}
+
+#plateArea p {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 1em;
+}
+
+#inputArea {
+  margin-bottom: 1em;
+}
+
+#userInput {
+  width: 70%;
+  font-size: 18px;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+#submitBtn {
+  font-size: 18px;
+  padding: 8px 16px;
+  margin-left: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+}
+
+#submitBtn:hover {
+  background-color: #45a049;
+}
+
+#inputButtons {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.inputBtn, #backspaceBtn, #clearBtn {
+  padding: 8px 14px;
+  font-size: 18px;
+  cursor: pointer;
+  border: 1px solid #666;
+  background-color: #eee;
+  border-radius: 6px;
+  user-select: none;
+  min-width: 48px;
+  box-sizing: border-box;
+  line-height: 1.2;
+}
+
+.inputBtn:hover, #backspaceBtn:hover {
+  background-color: #ddd;
+}
+
+#clearBtn {
+  background-color: #f44336;
+  color: white;
+  border-color: #d32f2f;
+}
+
+#clearBtn:hover {
+  background-color: #d32f2f;
+}
+
+#timer, #score {
+  font-size: 18px;
+  margin-top: 1em;
+  color: #333;
+}
+
+#result {
+  margin-top: 1.5em;
+  font-size: 20px;
+  font-weight: bold;
+  min-height: 1.5em;
+}
